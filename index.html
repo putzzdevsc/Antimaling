@@ -3,32 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deteksi Objek + Alarm</title>
+<title>Deteksi Objek Instan</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: #000;
     color: #0f0;
     font-family: 'Courier New', monospace;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
     overflow: hidden;
+    height: 100vh;
   }
   #status {
     position: fixed;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 12px 24px;
-    font-size: 20px;
+    padding: 12px 20px;
+    font-size: 18px;
     font-weight: bold;
     border-radius: 8px;
     z-index: 10;
     text-align: center;
-    min-width: 280px;
+    min-width: 90%;
+    max-width: 95%;
   }
   .detected {
     background: #0a3d0a;
@@ -47,28 +44,20 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
   }
-  #video-container {
-    position: relative;
+  video {
     width: 100vw;
     height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  video {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
     transform: scaleX(-1);
   }
   canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
     transform: scaleX(-1);
     pointer-events: none;
+    z-index: 4;
   }
   #controls {
     position: fixed;
@@ -80,7 +69,7 @@
     z-index: 10;
   }
   button {
-    padding: 12px 24px;
+    padding: 14px 28px;
     font-size: 16px;
     font-family: inherit;
     background: #111;
@@ -90,7 +79,7 @@
     cursor: pointer;
     font-weight: bold;
   }
-  button:hover { background: #0f0; color: #000; }
+  button:active { background: #0f0; color: #000; }
   button.off { color: #f00; border-color: #f00; }
   #flash-overlay {
     position: fixed;
@@ -100,58 +89,63 @@
     opacity: 0;
     pointer-events: none;
     z-index: 5;
-    transition: opacity 0.05s;
   }
-  #flash-overlay.active {
-    animation: flashAnim 0.3s infinite;
-  }
+  #flash-overlay.active { animation: flashAnim 0.25s infinite; }
   @keyframes flashAnim {
     0%, 100% { opacity: 0; }
-    50% { opacity: 0.8; }
+    50% { opacity: 0.9; }
   }
-  #info {
+  #sensitivity {
     position: fixed;
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 12px;
-    color: #888;
     z-index: 10;
+    color: #0f0;
+    font-size: 12px;
+    text-align: center;
+    background: rgba(0,0,0,0.6);
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #0f0;
   }
+  input[type=range] { width: 200px; accent-color: #0f0; }
 </style>
 </head>
 <body>
 
-<div id="status" class="not-detected">MENUNGGU KAMERA...</div>
-<div id="video-container">
-  <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
-</div>
+<div id="status" class="not-detected">TEKAN MULAI</div>
+<video id="video" autoplay playsinline muted></video>
+<canvas id="canvas"></canvas>
 <div id="flash-overlay"></div>
+
+<div id="sensitivity">
+  Sensitivitas: <span id="sens-val">15</span><br>
+  <input type="range" id="sens" min="5" max="60" value="15">
+</div>
+
 <div id="controls">
   <button id="btn-start">▶ MULAI</button>
   <button id="btn-stop" class="off">■ STOP</button>
 </div>
-<div id="info">Arahkan kamera ke objek. Jika objek hilang → ALARM + FLASH</div>
 
 <script>
 // ============================================
 // KONFIGURASI
 // ============================================
 const CONFIG = {
-  detectionThreshold: 0.65,   // Sensitivitas deteksi (0-1)
-  lostFramesThreshold: 5,     // Berapa frame objek hilang sebelum alarm
-  alarmFrequency: 880,        // Hz alarm
-  alarmVolume: 0.3,           // 0-1
-  flashInterval: 300,         // ms interval flash
-  modelUrl: 'https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js',
-  tfUrl: 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js'
+  lostFramesThreshold: 12,   // frame hilang sebelum alarm (makin besar = makin toleran)
+  alarmFrequency: 880,
+  alarmVolume: 0.3,
+  sampleW: 160,              // resolusi sampling (kecil = cepat)
+  sampleH: 120
 };
+
+let motionThreshold = 15;    // ambang deteksi gerakan
 
 // ============================================
 // STATE
 // ============================================
-let model = null;
 let video = document.getElementById('video');
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
@@ -160,33 +154,30 @@ let flashEl = document.getElementById('flash-overlay');
 let audioCtx = null;
 let alarmOsc = null;
 let alarmGain = null;
+let alarmInterval = null;
 let flashTimer = null;
 let isRunning = false;
 let lostCounter = 0;
-let detectionLoop = null;
+let prevFrame = null;
+let baseline = null;
+let baselineFrames = 0;
+let motionLoop = null;
+
+// canvas kecil untuk sampling
+const sampleCanvas = document.createElement('canvas');
+sampleCanvas.width = CONFIG.sampleW;
+sampleCanvas.height = CONFIG.sampleH;
+const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
 // ============================================
-// LOAD TENSORFLOW + COCO-SSD
+// SLIDER SENSITIVITAS
 // ============================================
-function loadScript(url) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = url;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
-}
-
-async function initModel() {
-  statusEl.textContent = 'MEMUAT MODEL AI...';
-  statusEl.className = 'not-detected';
-  await loadScript(CONFIG.tfUrl);
-  await loadScript(CONFIG.modelUrl);
-  model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
-  statusEl.textContent = 'MODEL SIAP - TEKAN MULAI';
-  statusEl.className = 'detected';
-}
+document.getElementById('sens').addEventListener('input', (e) => {
+  motionThreshold = 65 - parseInt(e.target.value); // dibalik: slider kanan = lebih sensitif
+  document.getElementById('sens-val').textContent = e.target.value;
+});
+// init: nilai 15 → threshold 50
+motionThreshold = 65 - 15;
 
 // ============================================
 // KAMERA
@@ -207,18 +198,18 @@ async function startCamera() {
 }
 
 // ============================================
-// ALARM SUARA
+// AUDIO ALARM
 // ============================================
 function initAudio() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
 function startAlarm() {
   if (alarmOsc) return;
   initAudio();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
   alarmOsc = audioCtx.createOscillator();
   alarmGain = audioCtx.createGain();
   alarmOsc.type = 'square';
@@ -227,11 +218,9 @@ function startAlarm() {
   alarmOsc.connect(alarmGain);
   alarmGain.connect(audioCtx.destination);
   alarmOsc.start();
-  // Modulasi suara alarm
   let t = 0;
-  alarmOsc.frequency.setValueAtTime(CONFIG.alarmFrequency, audioCtx.currentTime);
-  const interval = setInterval(() => {
-    if (!alarmOsc) { clearInterval(interval); return; }
+  alarmInterval = setInterval(() => {
+    if (!alarmOsc) return;
     t++;
     alarmOsc.frequency.setValueAtTime(
       t % 2 === 0 ? CONFIG.alarmFrequency : CONFIG.alarmFrequency * 0.6,
@@ -241,6 +230,7 @@ function startAlarm() {
 }
 
 function stopAlarm() {
+  if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
   if (alarmOsc) {
     try { alarmOsc.stop(); } catch(e) {}
     alarmOsc.disconnect();
@@ -250,82 +240,107 @@ function stopAlarm() {
 }
 
 // ============================================
-// FLASH KAMERA (layar putih berkedip)
+// FLASH
 // ============================================
 function startFlash() {
   if (flashTimer) return;
   flashEl.classList.add('active');
-  flashTimer = setInterval(() => {
-    flashEl.classList.toggle('active');
-  }, CONFIG.flashInterval);
 }
 
 function stopFlash() {
-  if (flashTimer) {
-    clearInterval(flashTimer);
-    flashTimer = null;
-  }
   flashEl.classList.remove('active');
   flashEl.style.opacity = '0';
 }
 
 // ============================================
-// LOOP DETEKSI
+// DETEKSI GERAKAN + PERUBAHAN WARNA
 // ============================================
-async function detectLoop() {
-  if (!isRunning || !model) return;
+function detectLoop() {
+  if (!isRunning) return;
 
-  try {
-    const predictions = await model.detect(video);
-    const filtered = predictions.filter(p => p.score >= CONFIG.detectionThreshold);
+  // Ambil frame kecil
+  sampleCtx.drawImage(video, 0, 0, CONFIG.sampleW, CONFIG.sampleH);
+  const curr = sampleCtx.getImageData(0, 0, CONFIG.sampleW, CONFIG.sampleH).data;
 
-    // Resize canvas
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (filtered.length > 0) {
-      // OBJEK TERDETEKSI
-      lostCounter = 0;
-      stopAlarm();
-      stopFlash();
-      statusEl.className = 'detected';
-      const labels = filtered.map(p => `${p.class} (${Math.round(p.score*100)}%)`).join(', ');
-      statusEl.textContent = `✔ TERDETEKSI: ${labels}`;
+  let hasObject = false;
+  let totalDiff = 0;
 
-      // Gambar bounding box
-      filtered.forEach(p => {
-        const [x, y, w, h] = p.bbox;
-        ctx.strokeStyle = '#0f0';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x, y, w, h);
-        ctx.fillStyle = '#0f0';
-        ctx.font = 'bold 16px Courier New';
-        ctx.fillText(`${p.class} ${Math.round(p.score*100)}%`, x + 4, y - 6);
-        // Titik tengah
-        ctx.beginPath();
-        ctx.arc(x + w/2, y + h/2, 5, 0, Math.PI*2);
-        ctx.fillStyle = '#0f0';
-        ctx.fill();
-      });
-    } else {
-      // TIDAK ADA OBJEK
-      lostCounter++;
-      if (lostCounter >= CONFIG.lostFramesThreshold) {
-        statusEl.className = 'not-detected';
-        statusEl.textContent = '⚠ TIDAK ADA OBJEK DI DEPAN KAMERA!';
-        startAlarm();
-        startFlash();
-      } else {
-        statusEl.className = 'not-detected';
-        statusEl.textContent = `Menunggu objek... (${lostCounter}/${CONFIG.lostFramesThreshold})`;
+  if (prevFrame) {
+    // Hitung perbedaan piksel
+    let diffPixels = 0;
+    const totalPixels = curr.length / 4;
+    let minX = CONFIG.sampleW, minY = CONFIG.sampleH;
+    let maxX = 0, maxY = 0;
+
+    for (let i = 0; i < curr.length; i += 4) {
+      const dr = Math.abs(curr[i] - prevFrame[i]);
+      const dg = Math.abs(curr[i+1] - prevFrame[i+1]);
+      const db = Math.abs(curr[i+2] - prevFrame[i+2]);
+      const diff = (dr + dg + db) / 3;
+      totalDiff += diff;
+
+      if (diff > motionThreshold) {
+        diffPixels++;
+        const px = (i / 4) % CONFIG.sampleW;
+        const py = Math.floor((i / 4) / CONFIG.sampleW);
+        if (px < minX) minX = px;
+        if (py < minY) minY = py;
+        if (px > maxX) maxX = px;
+        if (py > maxY) maxY = py;
       }
     }
-  } catch(e) {
-    console.error(e);
+
+    const diffRatio = diffPixels / totalPixels;
+    hasObject = diffRatio > 0.02; // minimal 2% piksel berubah
+
+    // Gambar box di sekitar area yang berubah
+    if (hasObject && maxX > minX && maxY > minY) {
+      const scaleX = canvas.width / CONFIG.sampleW;
+      const scaleY = canvas.height / CONFIG.sampleH;
+      const x = minX * scaleX;
+      const y = minY * scaleY;
+      const w = (maxX - minX) * scaleX;
+      const h = (maxY - minY) * scaleY;
+
+      ctx.strokeStyle = '#0f0';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = '#0f0';
+      ctx.font = 'bold 16px Courier New';
+      ctx.fillText('OBJEK', x + 4, y - 6);
+      ctx.beginPath();
+      ctx.arc(x + w/2, y + h/2, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  detectionLoop = requestAnimationFrame(detectLoop);
+  prevFrame = curr;
+
+  // Update status
+  if (hasObject) {
+    lostCounter = 0;
+    stopAlarm();
+    stopFlash();
+    statusEl.className = 'detected';
+    statusEl.textContent = '✔ OBJEK TERDETEKSI DI DEPAN KAMERA';
+  } else {
+    lostCounter++;
+    if (lostCounter >= CONFIG.lostFramesThreshold) {
+      statusEl.className = 'not-detected';
+      statusEl.textContent = '⚠ TIDAK ADA OBJEK DI DEPAN KAMERA!';
+      startAlarm();
+      startFlash();
+    } else {
+      statusEl.className = 'not-detected';
+      statusEl.textContent = `Menunggu objek... (${lostCounter}/${CONFIG.lostFramesThreshold})`;
+    }
+  }
+
+  motionLoop = requestAnimationFrame(detectLoop);
 }
 
 // ============================================
@@ -338,14 +353,15 @@ document.getElementById('btn-start').addEventListener('click', async () => {
   if (!ok) return;
   isRunning = true;
   lostCounter = 0;
-  statusEl.textContent = 'MENDETEKSI...';
+  prevFrame = null;
   statusEl.className = 'detected';
+  statusEl.textContent = 'MENDETEKSI...';
   detectLoop();
 });
 
 document.getElementById('btn-stop').addEventListener('click', () => {
   isRunning = false;
-  if (detectionLoop) cancelAnimationFrame(detectionLoop);
+  if (motionLoop) cancelAnimationFrame(motionLoop);
   stopAlarm();
   stopFlash();
   if (video.srcObject) {
@@ -353,14 +369,21 @@ document.getElementById('btn-stop').addEventListener('click', () => {
     video.srcObject = null;
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  prevFrame = null;
   statusEl.textContent = 'DIHENTIKAN';
   statusEl.className = 'not-detected';
 });
 
-// ============================================
-// INIT
-// ============================================
-initModel();
+// Cegah layar mati saat deteksi
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch(e) {}
+}
+document.getElementById('btn-start').addEventListener('click', requestWakeLock);
 </script>
 </body>
 </html>
