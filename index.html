@@ -1,4 +1,366 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GuardCam AI — CCTV Anti Maling</title><style>:root{--bg:#070b12;--card:#101827;--line:#243249;--txt:#eef5ff;--mut:#93a4bc;--g:#28e27f;--r:#ff4057}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#182945,#070b12 45%);color:var(--txt);font:15px system-ui,Arial}.wrap{max-width:1050px;margin:auto;padding:16px}.head{display:flex;justify-content:space-between;align-items:center;height:55px}.logo{font-weight:900;font-size:21px}.logo b{color:var(--g)}.live{color:var(--mut);font-size:12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#64748b;margin-right:6px}.on{background:var(--g);box-shadow:0 0 12px var(--g)}h1{text-align:center;font-size:clamp(34px,7vw,58px);letter-spacing:-2px;margin:30px 0 8px}header p{text-align:center;color:var(--mut);margin:0 0 28px}.grid{display:grid;grid-template-columns:1.4fr .8fr;gap:16px}.card{background:#101827ee;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px #0008}.cam{position:relative;background:#000;aspect-ratio:16/10}.cam video,.cam canvas{position:absolute;width:100%;height:100%;object-fit:cover}.cam video{transform:scaleX(-1)}.cam canvas{transform:scaleX(-1);pointer-events:none}.pill{position:absolute;top:12px;background:#000b;padding:7px 10px;border-radius:9px;font-size:11px}.left{left:12px}.right{right:12px}.controls{padding:14px;display:flex;gap:10px}.btn{flex:1;border:1px solid var(--line);background:#17243a;color:var(--txt);padding:13px;border-radius:12px;font-weight:800}.primary{background:var(--g);color:#03150b;border-color:var(--g)}.danger{background:#32151c;color:#ffb5bf}.panel{padding:17px}.panel h2{font-size:16px;margin:0 0 12px}.note{font-size:12px;line-height:1.5;color:var(--mut);background:#0a1220;padding:11px;border-radius:10px;margin-bottom:12px}.full{width:100%}label{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin:14px 0 7px}input[type=text]{width:100%;padding:11px;background:#09111d;color:var(--txt);border:1px solid var(--line);border-radius:10px}input[type=range]{width:100%;accent-color:var(--g)}.tags{display:flex;flex-wrap:wrap;gap:7px}.tag{font-size:11px;padding:7px 9px;background:#17243a;border:1px solid #2b3e5c;border-radius:9px}.empty{color:var(--mut);font-size:12px}.alert{display:none;position:fixed;inset:0;background:#18050aee;z-index:5;align-items:center;justify-content:center;padding:20px}.alert.show{display:flex}.box{width:min(430px,100%);text-align:center;padding:28px;border:2px solid var(--r);border-radius:22px;background:#1b0b10;box-shadow:0 0 70px #ff405766;animation:pulse .6s infinite alternate}.box .ico{font-size:48px}.box p{color:#ffb4be;font-size:13px}.stop{border:0;background:var(--r);color:white;padding:13px 20px;border-radius:12px;font-weight:900}@keyframes pulse{to{transform:scale(1.02)}}footer{text-align:center;color:var(--mut);font-size:11px;padding:22px 10px}@media(max-width:750px){.grid{grid-template-columns:1fr}.cam{aspect-ratio:4/3}}
-</style></head><body><div class="wrap"><div class="head"><div class="logo">Guard<b>Cam</b> AI</div><div class="live"><i id="dot" class="dot"></i><span id="state">OFFLINE</span></div></div><header><h1>CCTV Anti Maling</h1><p>Pantau benda di kamera dan bunyikan alarm ketika benda yang dijaga menghilang.</p></header><div class="grid"><section class="card"><div class="cam"><video id="video" autoplay muted playsinline></video><canvas id="canvas"></canvas><span class="pill left">● LIVE MONITOR</span><span class="pill right" id="ai">AI STANDBY</span></div><div class="controls"><button id="start" class="btn primary">Start Camera</button><button id="stop" class="btn danger" disabled>Stop</button></div></section><section class="card panel"><h2>🔐 Object Guard</h2><div class="note">Arahkan kamera ke benda yang ingin dijaga, lalu tekan <b>Set Guard</b>. Deteksi dilakukan di browser.</div><button id="guard" class="btn primary full" disabled>Set Guard</button><label>Nama target <span id="chosen">belum dipilih</span></label><input id="target" type="text" placeholder="contoh: laptop"><label>Kepekaan <span id="sv">50%</span></label><input id="sens" type="range" min="10" max="90" value="50"><label>Delay alarm <span id="dv">3 detik</span></label><input id="delay" type="range" min="1" max="10" value="3"><h2 style="margin-top:20px">Objek terdeteksi</h2><div id="objects" class="tags"><span class="empty">Kamera belum aktif.</span></div></section></div></div><footer>GuardCam AI • Kamera diproses lokal di browser. Model AI mendukung kategori objek tertentu, bukan setiap benda yang ada di dunia.</footer><div id="alert" class="alert"><div class="box"><div class="ico">🚨</div><h2>OBJECT MISSING!</h2><p id="msg"></p><button id="dismiss" class="stop">MATIKAN ALARM</button></div></div><script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script><script>
-const $=x=>document.getElementById(x);let stream,model,running=false,guarding=false,target='',missing=0,lastAlarm=0,audio;const v=$('video'),c=$('canvas'),x=c.getContext('2d');$('sens').oninput=e=>$('sv').textContent=e.target.value+'%';$('delay').oninput=e=>$('dv').textContent=e.target.value+' detik';$('start').onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});v.srcObject=stream;await v.play();running=true;$('start').disabled=true;$('stop').disabled=false;$('guard').disabled=false;$('dot').classList.add('on');$('state').textContent='CAMERA LIVE';$('ai').textContent='LOADING AI…';model=await cocoSsd.load();$('ai').textContent='AI READY';loop()}catch(e){alert('Kamera gagal dibuka. Izinkan kamera dan gunakan HTTPS atau localhost.')}};$('stop').onclick=stop;function stop(){running=false;guarding=false;if(stream)stream.getTracks().forEach(t=>t.stop());v.srcObject=null;$('start').disabled=false;$('stop').disabled=true;$('guard').disabled=true;$('dot').classList.remove('on');$('state').textContent='OFFLINE';$('ai').textContent='AI STANDBY';$('objects').innerHTML='<span class="empty">Kamera belum aktif.</span>'}$('guard').onclick=()=>{target=($('target').value.trim().toLowerCase()||((window.preds||[]).sort((a,b)=>b.score-a.score)[0]||{}).class||'');if(!target)return alert('Belum ada objek. Tunggu deteksi AI atau isi nama target.');guarding=true;missing=0;$('chosen').textContent=target+' ✓';$('guard').textContent='Guard Aktif: '+target;beep(1)};async function loop(){if(!running)return;const p=await model.detect(v);window.preds=p;x.clearRect(0,0,c.width,c.height);c.width=v.videoWidth||640;c.height=v.videoHeight||480;const ok=p.filter(a=>a.score>.45);$('objects').innerHTML=ok.length?[...new Set(ok.map(a=>a.class))].map(a=>'<span class="tag">'+a+'</span>').join(''):'<span class="empty">Tidak ada objek jelas.</span>';x.font='14px system-ui';ok.forEach(a=>{let [q,r,w,h]=a.bbox;x.strokeStyle='#28e27f';x.lineWidth=2;x.strokeRect(q,r,w,h);x.fillStyle='#28e27f';x.fillRect(q,r-22,x.measureText(a.class).width+55,22);x.fillStyle='#00150b';x.fillText(a.class+' '+Math.round(a.score*100)+'%',q+5,r-6)});if(guarding){let th=.35+(+$('sens').value/100)*.35,found=p.some(a=>a.class.toLowerCase()===target&&a.score>=th);if(found)missing=0;else{if(!missing)missing=Date.now();if((Date.now()-missing)/1000>=+$('delay').value&&Date.now()-lastAlarm>5000){lastAlarm=Date.now();alarm()}}}requestAnimationFrame(loop)}function alarm(){$('msg').textContent='Target "'+target+'" tidak terlihat selama '+$('delay').value+' detik.';$('alert').classList.add('show');beep(8);torch(true)}function beep(n){try{audio=audio||new AudioContext();audio.resume();let t=audio.currentTime;for(let i=0;i<n;i++){let o=audio.createOscillator(),g=audio.createGain();o.type='square';o.frequency.value=i%2?900:500;g.gain.setValueAtTime(.0001,t+i*.32);g.gain.exponentialRampToValueAtTime(.18,t+i*.32+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.32+.2);o.connect(g);g.connect(audio.destination);o.start(t+i*.32);o.stop(t+i*.32+.22)}}catch(e){}}async function torch(on){try{let t=stream?.getVideoTracks()[0],cap=t?.getCapabilities?.();if(cap?.torch)await t.applyConstraints({advanced:[{torch:on}]})}catch(e){}}$('dismiss').onclick=()=>{$('alert').classList.remove('show');torch(false);missing=0};
-</script></body></html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deteksi Objek + Alarm</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  #status {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    z-index: 10;
+    text-align: center;
+    min-width: 280px;
+  }
+  .detected {
+    background: #0a3d0a;
+    color: #0f0;
+    border: 2px solid #0f0;
+    box-shadow: 0 0 20px #0f0;
+  }
+  .not-detected {
+    background: #3d0a0a;
+    color: #f00;
+    border: 2px solid #f00;
+    box-shadow: 0 0 30px #f00;
+    animation: blink 0.4s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  #video-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(-1);
+    pointer-events: none;
+  }
+  #controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+  button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #111;
+    color: #0f0;
+    border: 2px solid #0f0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button:hover { background: #0f0; color: #000; }
+  button.off { color: #f00; border-color: #f00; }
+  #flash-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 0.05s;
+  }
+  #flash-overlay.active {
+    animation: flashAnim 0.3s infinite;
+  }
+  @keyframes flashAnim {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.8; }
+  }
+  #info {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #888;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<div id="status" class="not-detected">MENUNGGU KAMERA...</div>
+<div id="video-container">
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+</div>
+<div id="flash-overlay"></div>
+<div id="controls">
+  <button id="btn-start">▶ MULAI</button>
+  <button id="btn-stop" class="off">■ STOP</button>
+</div>
+<div id="info">Arahkan kamera ke objek. Jika objek hilang → ALARM + FLASH</div>
+
+<script>
+// ============================================
+// KONFIGURASI
+// ============================================
+const CONFIG = {
+  detectionThreshold: 0.65,   // Sensitivitas deteksi (0-1)
+  lostFramesThreshold: 5,     // Berapa frame objek hilang sebelum alarm
+  alarmFrequency: 880,        // Hz alarm
+  alarmVolume: 0.3,           // 0-1
+  flashInterval: 300,         // ms interval flash
+  modelUrl: 'https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js',
+  tfUrl: 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js'
+};
+
+// ============================================
+// STATE
+// ============================================
+let model = null;
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+let statusEl = document.getElementById('status');
+let flashEl = document.getElementById('flash-overlay');
+let audioCtx = null;
+let alarmOsc = null;
+let alarmGain = null;
+let flashTimer = null;
+let isRunning = false;
+let lostCounter = 0;
+let detectionLoop = null;
+
+// ============================================
+// LOAD TENSORFLOW + COCO-SSD
+// ============================================
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function initModel() {
+  statusEl.textContent = 'MEMUAT MODEL AI...';
+  statusEl.className = 'not-detected';
+  await loadScript(CONFIG.tfUrl);
+  await loadScript(CONFIG.modelUrl);
+  model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
+  statusEl.textContent = 'MODEL SIAP - TEKAN MULAI';
+  statusEl.className = 'detected';
+}
+
+// ============================================
+// KAMERA
+// ============================================
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: 640, height: 480 }
+    });
+    video.srcObject = stream;
+    await video.play();
+    return true;
+  } catch (e) {
+    statusEl.textContent = 'AKSES KAMERA DITOLAK';
+    statusEl.className = 'not-detected';
+    return false;
+  }
+}
+
+// ============================================
+// ALARM SUARA
+// ============================================
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function startAlarm() {
+  if (alarmOsc) return;
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  alarmOsc = audioCtx.createOscillator();
+  alarmGain = audioCtx.createGain();
+  alarmOsc.type = 'square';
+  alarmOsc.frequency.value = CONFIG.alarmFrequency;
+  alarmGain.gain.value = CONFIG.alarmVolume;
+  alarmOsc.connect(alarmGain);
+  alarmGain.connect(audioCtx.destination);
+  alarmOsc.start();
+  // Modulasi suara alarm
+  let t = 0;
+  alarmOsc.frequency.setValueAtTime(CONFIG.alarmFrequency, audioCtx.currentTime);
+  const interval = setInterval(() => {
+    if (!alarmOsc) { clearInterval(interval); return; }
+    t++;
+    alarmOsc.frequency.setValueAtTime(
+      t % 2 === 0 ? CONFIG.alarmFrequency : CONFIG.alarmFrequency * 0.6,
+      audioCtx.currentTime
+    );
+  }, 200);
+}
+
+function stopAlarm() {
+  if (alarmOsc) {
+    try { alarmOsc.stop(); } catch(e) {}
+    alarmOsc.disconnect();
+    alarmOsc = null;
+    alarmGain = null;
+  }
+}
+
+// ============================================
+// FLASH KAMERA (layar putih berkedip)
+// ============================================
+function startFlash() {
+  if (flashTimer) return;
+  flashEl.classList.add('active');
+  flashTimer = setInterval(() => {
+    flashEl.classList.toggle('active');
+  }, CONFIG.flashInterval);
+}
+
+function stopFlash() {
+  if (flashTimer) {
+    clearInterval(flashTimer);
+    flashTimer = null;
+  }
+  flashEl.classList.remove('active');
+  flashEl.style.opacity = '0';
+}
+
+// ============================================
+// LOOP DETEKSI
+// ============================================
+async function detectLoop() {
+  if (!isRunning || !model) return;
+
+  try {
+    const predictions = await model.detect(video);
+    const filtered = predictions.filter(p => p.score >= CONFIG.detectionThreshold);
+
+    // Resize canvas
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (filtered.length > 0) {
+      // OBJEK TERDETEKSI
+      lostCounter = 0;
+      stopAlarm();
+      stopFlash();
+      statusEl.className = 'detected';
+      const labels = filtered.map(p => `${p.class} (${Math.round(p.score*100)}%)`).join(', ');
+      statusEl.textContent = `✔ TERDETEKSI: ${labels}`;
+
+      // Gambar bounding box
+      filtered.forEach(p => {
+        const [x, y, w, h] = p.bbox;
+        ctx.strokeStyle = '#0f0';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = '#0f0';
+        ctx.font = 'bold 16px Courier New';
+        ctx.fillText(`${p.class} ${Math.round(p.score*100)}%`, x + 4, y - 6);
+        // Titik tengah
+        ctx.beginPath();
+        ctx.arc(x + w/2, y + h/2, 5, 0, Math.PI*2);
+        ctx.fillStyle = '#0f0';
+        ctx.fill();
+      });
+    } else {
+      // TIDAK ADA OBJEK
+      lostCounter++;
+      if (lostCounter >= CONFIG.lostFramesThreshold) {
+        statusEl.className = 'not-detected';
+        statusEl.textContent = '⚠ TIDAK ADA OBJEK DI DEPAN KAMERA!';
+        startAlarm();
+        startFlash();
+      } else {
+        statusEl.className = 'not-detected';
+        statusEl.textContent = `Menunggu objek... (${lostCounter}/${CONFIG.lostFramesThreshold})`;
+      }
+    }
+  } catch(e) {
+    console.error(e);
+  }
+
+  detectionLoop = requestAnimationFrame(detectLoop);
+}
+
+// ============================================
+// KONTROL
+// ============================================
+document.getElementById('btn-start').addEventListener('click', async () => {
+  if (isRunning) return;
+  initAudio();
+  const ok = await startCamera();
+  if (!ok) return;
+  isRunning = true;
+  lostCounter = 0;
+  statusEl.textContent = 'MENDETEKSI...';
+  statusEl.className = 'detected';
+  detectLoop();
+});
+
+document.getElementById('btn-stop').addEventListener('click', () => {
+  isRunning = false;
+  if (detectionLoop) cancelAnimationFrame(detectionLoop);
+  stopAlarm();
+  stopFlash();
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  statusEl.textContent = 'DIHENTIKAN';
+  statusEl.className = 'not-detected';
+});
+
+// ============================================
+// INIT
+// ============================================
+initModel();
+</script>
+</body>
+</html>
