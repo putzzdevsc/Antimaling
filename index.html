@@ -1,389 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deteksi Objek Instan</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ENC JS Premium — Putzzdev</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #000;
-    color: #0f0;
-    font-family: 'Courier New', monospace;
-    overflow: hidden;
-    height: 100vh;
-  }
-  #status {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 20px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
-    z-index: 10;
-    text-align: center;
-    min-width: 90%;
-    max-width: 95%;
-  }
-  .detected {
-    background: #0a3d0a;
-    color: #0f0;
-    border: 2px solid #0f0;
-    box-shadow: 0 0 20px #0f0;
-  }
-  .not-detected {
-    background: #3d0a0a;
-    color: #f00;
-    border: 2px solid #f00;
-    box-shadow: 0 0 30px #f00;
-    animation: blink 0.4s infinite;
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-  video {
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    transform: scaleX(-1);
-  }
-  canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    transform: scaleX(-1);
-    pointer-events: none;
-    z-index: 4;
-  }
-  #controls {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 10;
-  }
-  button {
-    padding: 14px 28px;
-    font-size: 16px;
-    font-family: inherit;
-    background: #111;
-    color: #0f0;
-    border: 2px solid #0f0;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  button:active { background: #0f0; color: #000; }
-  button.off { color: #f00; border-color: #f00; }
-  #flash-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 5;
-  }
-  #flash-overlay.active { animation: flashAnim 0.25s infinite; }
-  @keyframes flashAnim {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 0.9; }
-  }
-  #sensitivity {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    color: #0f0;
-    font-size: 12px;
-    text-align: center;
-    background: rgba(0,0,0,0.6);
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid #0f0;
-  }
-  input[type=range] { width: 200px; accent-color: #0f0; }
+:root{--bg:#070a10;--card:#0d121c;--line:#202b3c;--text:#edf3ff;--muted:#8290a7;--a:#7c5cff;--g:#00d9a6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#24165a55,transparent 32%),#070a10;color:var(--text);font-family:system-ui,Arial,sans-serif}
+header{max-width:1180px;margin:auto;height:70px;padding:0 20px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:21px;font-weight:900}.brand b{color:var(--a)}.brand small{font-size:10px;color:var(--muted);margin-left:7px}
+.hero{max-width:1180px;margin:35px auto 25px;padding:0 20px;text-align:center}.badge{color:#b9adff;border:1px solid #7c5cff55;padding:7px 11px;border-radius:99px;font-size:11px;font-weight:800}.hero h1{font-size:clamp(38px,7vw,68px);line-height:1;margin:17px 0 12px;letter-spacing:-3px}.hero h1 em{color:var(--a);font-style:normal}.hero p{color:var(--muted)}
+.app{max-width:1180px;margin:auto;padding:0 20px 45px}.top{margin-bottom:12px}.name{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:0}.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.head{height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}.head span{color:var(--muted)}textarea{width:100%;height:450px;resize:none;border:0;outline:0;background:#080d14;color:#d9e2f2;padding:17px;font:13px/1.65 monospace}.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.setting{background:var(--card);border:1px solid var(--line);padding:12px;border-radius:13px}.setting label{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.setting select{width:100%;background:#090f18;color:var(--text);border:1px solid var(--line);padding:9px;border-radius:9px}.actions{display:flex;gap:10px}.btn{flex:1;border:1px solid var(--line);background:#121b29;color:var(--text);padding:12px;border-radius:11px;font-weight:800;cursor:pointer}.primary{border:0;background:linear-gradient(135deg,var(--a),#5d38db);color:white}.green{border:0;background:linear-gradient(135deg,var(--g),#00a77e);color:#00150f}.btn:disabled{opacity:.4}.stats{display:flex;gap:14px;color:var(--muted);font-size:11px;margin:11px 2px}.stats b{color:var(--text)}.note{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.5}.toast{position:fixed;right:18px;bottom:18px;background:#121b29;border:1px solid #2b3950;padding:12px 15px;border-radius:12px;opacity:0;transition:.2s}.toast.show{opacity:1}footer{text-align:center;color:var(--muted);font-size:11px;padding-bottom:25px}@media(max-width:800px){.layout{grid-template-columns:1fr}.settings{grid-template-columns:1fr}textarea{height:340px}.hero h1{letter-spacing:-2px}}
+</style>
+
+<style>
+.file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.file-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06)}
+.file-btn:hover{background:rgba(255,255,255,.1)}
+#fileName{font-size:12px;opacity:.7}
+</style>
+
+
+
+<style>
+.upload-card{margin:16px 0;padding:22px;border:1px solid rgba(0,255,170,.25);border-radius:20px;background:linear-gradient(180deg,rgba(0,255,170,.07),rgba(0,140,255,.04));text-align:center}
+.upload-icon{font-size:38px;margin-bottom:4px}
+.upload-card h3{margin:4px 0 6px;font-size:18px}
+.upload-card p{margin:0 auto 15px;opacity:.7;font-size:12px}
+.upload-btn{border:0;border-radius:13px;padding:13px 20px;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#00e5a0,#00b8ff);color:#06110e}
+.upload-or{font-size:11px;opacity:.5;margin:10px}
+.drop-zone{padding:16px;border:1px dashed rgba(255,255,255,.22);border-radius:13px;font-size:12px;opacity:.8}
+.drop-zone.drag{border-color:#00e5a0;background:rgba(0,229,160,.08)}
+.selected-file{margin-top:12px;font-size:12px;word-break:break-word;opacity:.8}
 </style>
 </head>
 <body>
-
-<div id="status" class="not-detected">TEKAN MULAI</div>
-<video id="video" autoplay playsinline muted></video>
-<canvas id="canvas"></canvas>
-<div id="flash-overlay"></div>
-
-<div id="sensitivity">
-  Sensitivitas: <span id="sens-val">15</span><br>
-  <input type="range" id="sens" min="5" max="60" value="15">
+<header><div class="brand">ENC <b>JS</b> <small>PREMIUM</small></div></header>
+<section class="hero"><span class="badge">LOCAL • FAST • PRIVATE</span><h1>JavaScript <em>ENC</em> Tool</h1><p>Obfuscate JavaScript langsung di browser. Tanpa login dan tanpa upload source.</p></section>
+<main class="app">
+<div class="top"><input id="project" class="name" value="Putzzdev" placeholder="Nama project / label"><input id="cover" class="name" value="プログラム Putzzdev コード保護" placeholder="Cover Jepang + Putzzdev"></div>
+<div class="layout">
+<section class="panel"><div class="head">SOURCE CODE <span id="ss">0 chars</span></div>
 </div>
 
-<div id="controls">
-  <button id="btn-start">▶ MULAI</button>
-  <button id="btn-stop" class="off">■ STOP</button>
+<section class="upload-card" id="uploadCard">
+  <input id="jsFile" type="file" accept=".js" hidden>
+  <div class="upload-icon">📂</div>
+  <h3>UPLOAD FILE JS</h3>
+  <p>Ambil file JavaScript langsung dari HP untuk di-ENC</p>
+  <button type="button" class="upload-btn" id="uploadBtn">📁 PILIH FILE JS</button>
+  <div class="upload-or">atau</div>
+  <div class="drop-zone" id="dropZone">Tarik & lepas file <b>.js</b> di sini</div>
+  <div class="selected-file" id="selectedFile">Belum ada file</div>
+</section>
+
+<textarea id="src" spellcheck="false" placeholder="// Paste JavaScript kamu di sini"></textarea></section>
+<section class="panel"><div class="head">ENCODED OUTPUT <span id="os">0 chars</span></div><textarea id="out" readonly spellcheck="false" placeholder="// Hasil encode muncul di sini"></textarea></section>
 </div>
+<div class="settings">
+<div class="setting"><label>Protection</label><select id="level"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="strong">Strong</option></select></div>
+<div class="setting"><label>Minify</label><select id="mini"><option value="yes" selected>Enabled</option><option value="no">Disabled</option></select></div>
+<div class="setting"><label>Output</label><select id="format"><option value="self">Self-contained JS</option><option value="packed">Packed loader</option></select></div>
+</div>
+<div class="actions"><button class="btn primary" id="enc">⚡ ENCODE JS</button><button class="btn green" id="copy" disabled>Copy</button><button class="btn" id="download" disabled>Download .js</button></div>
+<div class="stats">Project: <b id="ps">Putzzdev</b> · Input: <b id="ib">0 B</b> · Output: <b id="ob">0 B</b></div>
+<div class="note"><b>Catatan:</b> Ini obfuscation, bukan enkripsi absolut. JavaScript yang dijalankan client tetap secara teknis dapat dianalisis. Seluruh proses dilakukan lokal di browser.</div>
+</main>
+<footer>ENC JS Premium • Dev: <b>Putzzdev</b></footer>
+<div id="toast" class="toast"></div>
+<script>
+const $=id=>document.getElementById(id),src=$('src'),out=$('out');
+function bytes(s){return new Blob([s]).size+' B'} function stats(){$('ss').textContent=src.value.length+' chars';$('os').textContent=out.value.length+' chars';$('ib').textContent=bytes(src.value);$('ob').textContent=bytes(out.value)}
+function toast(x){$('toast').textContent=x;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
+function mini(s){return s.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|[^:])\/\/.*$/gm,'$1').replace(/\s+/g,' ').replace(/\s*([{}();,:=+\-*<>])\s*/g,'$1').trim()}
+function b64(s){let bin='';let a=new TextEncoder().encode(s);for(let i=0;i<a.length;i++)bin+=String.fromCharCode(a[i]);return btoa(bin)}
+function xor(s,k){let r='';for(let i=0;i<s.length;i++)r+=String.fromCharCode(s.charCodeAt(i)^k.charCodeAt(i%k.length));return r}
+$('project').oninput=()=>{$('ps').textContent=$('project').value||'Untitled'};
+src.oninput=stats;
+$('enc').onclick=()=>{
+ let s=src.value;if(!s.trim())return toast('Masukkan JavaScript terlebih dahulu.');
+ if($('mini').value==='yes')s=mini(s);
+ let name=($('project').value||'Putzzdev').replace(/[^a-zA-Z0-9_$]/g,'_'),key=name+'::ENC',result;
+ let cover=$('cover').value.trim()||'プログラム Putzzdev コード保護';
+ let banner='/* '+cover+' */\n/* '+name+' | 日本語 + Putzzdev */\n';
+ if($('level').value==='light')result=banner+s;
+ else {let d=b64(xor(s,key));result=banner+'(()=>{const PutzzdevKey='+JSON.stringify(key)+',PutzzdevData='+JSON.stringify(d)+',b=atob(PutzzdevData);let 日本語="";for(let PutzzdevIndex=0;PutzzdevIndex<b.length;PutzzdevIndex++)日本語+=String.fromCharCode(b.charCodeAt(PutzzdevIndex)^PutzzdevKey.charCodeAt(PutzzdevIndex%PutzzdevKey.length));(0,eval)(日本語)})();\n/* '+cover+' Putzzdev */';}
+ if($('format').value==='packed'){let d=b64(s);result=banner+'(()=>{const PutzzdevData='+JSON.stringify(d)+',日本語=atob(PutzzdevData);(0,eval)(日本語)})();\n/* '+cover+' Putzzdev */'}
+ out.value=result;$('copy').disabled=false;$('download').disabled=false;stats();toast('Encode berhasil');
+};
+$('copy').onclick=async()=>{await navigator.clipboard.writeText(out.value);toast('Berhasil dicopy')};
+$('download').onclick=()=>{let n=($('project').value||'Putzzdev').replace(/[^a-zA-Z0-9_-]/g,'_'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out.value],{type:'application/javascript'}));a.download=n+'-encoded.js';a.click();toast('File dibuat')};
+stats();
+</script>
+
 
 <script>
-// ============================================
-// KONFIGURASI
-// ============================================
-const CONFIG = {
-  lostFramesThreshold: 12,   // frame hilang sebelum alarm (makin besar = makin toleran)
-  alarmFrequency: 880,
-  alarmVolume: 0.3,
-  sampleW: 160,              // resolusi sampling (kecil = cepat)
-  sampleH: 120
-};
+(() => {
+  const input = document.getElementById('jsFile');
+  const btn = document.getElementById('uploadBtn');
+  const zone = document.getElementById('dropZone');
+  const selected = document.getElementById('selectedFile');
+  const source = document.getElementById('source');
+  if (!input || !btn || !zone || !selected) return;
 
-let motionThreshold = 15;    // ambang deteksi gerakan
-
-// ============================================
-// STATE
-// ============================================
-let video = document.getElementById('video');
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
-let statusEl = document.getElementById('status');
-let flashEl = document.getElementById('flash-overlay');
-let audioCtx = null;
-let alarmOsc = null;
-let alarmGain = null;
-let alarmInterval = null;
-let flashTimer = null;
-let isRunning = false;
-let lostCounter = 0;
-let prevFrame = null;
-let baseline = null;
-let baselineFrames = 0;
-let motionLoop = null;
-
-// canvas kecil untuk sampling
-const sampleCanvas = document.createElement('canvas');
-sampleCanvas.width = CONFIG.sampleW;
-sampleCanvas.height = CONFIG.sampleH;
-const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
-
-// ============================================
-// SLIDER SENSITIVITAS
-// ============================================
-document.getElementById('sens').addEventListener('input', (e) => {
-  motionThreshold = 65 - parseInt(e.target.value); // dibalik: slider kanan = lebih sensitif
-  document.getElementById('sens-val').textContent = e.target.value;
-});
-// init: nilai 15 → threshold 50
-motionThreshold = 65 - 15;
-
-// ============================================
-// KAMERA
-// ============================================
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: 640, height: 480 }
-    });
-    video.srcObject = stream;
-    await video.play();
-    return true;
-  } catch (e) {
-    statusEl.textContent = 'AKSES KAMERA DITOLAK';
-    statusEl.className = 'not-detected';
-    return false;
+  function reject(){
+    input.value='';
+    selected.textContent='❌ File ditolak — hanya JavaScript (.js) yang diperbolehkan';
+    if(typeof toast==='function') toast('Hanya file .js yang boleh di-upload.');
   }
-}
 
-// ============================================
-// AUDIO ALARM
-// ============================================
-function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-}
-
-function startAlarm() {
-  if (alarmOsc) return;
-  initAudio();
-  alarmOsc = audioCtx.createOscillator();
-  alarmGain = audioCtx.createGain();
-  alarmOsc.type = 'square';
-  alarmOsc.frequency.value = CONFIG.alarmFrequency;
-  alarmGain.gain.value = CONFIG.alarmVolume;
-  alarmOsc.connect(alarmGain);
-  alarmGain.connect(audioCtx.destination);
-  alarmOsc.start();
-  let t = 0;
-  alarmInterval = setInterval(() => {
-    if (!alarmOsc) return;
-    t++;
-    alarmOsc.frequency.setValueAtTime(
-      t % 2 === 0 ? CONFIG.alarmFrequency : CONFIG.alarmFrequency * 0.6,
-      audioCtx.currentTime
-    );
-  }, 200);
-}
-
-function stopAlarm() {
-  if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
-  if (alarmOsc) {
-    try { alarmOsc.stop(); } catch(e) {}
-    alarmOsc.disconnect();
-    alarmOsc = null;
-    alarmGain = null;
-  }
-}
-
-// ============================================
-// FLASH
-// ============================================
-function startFlash() {
-  if (flashTimer) return;
-  flashEl.classList.add('active');
-}
-
-function stopFlash() {
-  flashEl.classList.remove('active');
-  flashEl.style.opacity = '0';
-}
-
-// ============================================
-// DETEKSI GERAKAN + PERUBAHAN WARNA
-// ============================================
-function detectLoop() {
-  if (!isRunning) return;
-
-  // Ambil frame kecil
-  sampleCtx.drawImage(video, 0, 0, CONFIG.sampleW, CONFIG.sampleH);
-  const curr = sampleCtx.getImageData(0, 0, CONFIG.sampleW, CONFIG.sampleH).data;
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  let hasObject = false;
-  let totalDiff = 0;
-
-  if (prevFrame) {
-    // Hitung perbedaan piksel
-    let diffPixels = 0;
-    const totalPixels = curr.length / 4;
-    let minX = CONFIG.sampleW, minY = CONFIG.sampleH;
-    let maxX = 0, maxY = 0;
-
-    for (let i = 0; i < curr.length; i += 4) {
-      const dr = Math.abs(curr[i] - prevFrame[i]);
-      const dg = Math.abs(curr[i+1] - prevFrame[i+1]);
-      const db = Math.abs(curr[i+2] - prevFrame[i+2]);
-      const diff = (dr + dg + db) / 3;
-      totalDiff += diff;
-
-      if (diff > motionThreshold) {
-        diffPixels++;
-        const px = (i / 4) % CONFIG.sampleW;
-        const py = Math.floor((i / 4) / CONFIG.sampleW);
-        if (px < minX) minX = px;
-        if (py < minY) minY = py;
-        if (px > maxX) maxX = px;
-        if (py > maxY) maxY = py;
+  async function loadFile(file){
+    if(!file) return;
+    if(!file.name.toLowerCase().endsWith('.js')) return reject();
+    try{
+      const code = await file.text();
+      if(source) {
+        source.value = code;
+        source.dispatchEvent(new Event('input',{bubbles:true}));
       }
-    }
-
-    const diffRatio = diffPixels / totalPixels;
-    hasObject = diffRatio > 0.02; // minimal 2% piksel berubah
-
-    // Gambar box di sekitar area yang berubah
-    if (hasObject && maxX > minX && maxY > minY) {
-      const scaleX = canvas.width / CONFIG.sampleW;
-      const scaleY = canvas.height / CONFIG.sampleH;
-      const x = minX * scaleX;
-      const y = minY * scaleY;
-      const w = (maxX - minX) * scaleX;
-      const h = (maxY - minY) * scaleY;
-
-      ctx.strokeStyle = '#0f0';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x, y, w, h);
-      ctx.fillStyle = '#0f0';
-      ctx.font = 'bold 16px Courier New';
-      ctx.fillText('OBJEK', x + 4, y - 6);
-      ctx.beginPath();
-      ctx.arc(x + w/2, y + h/2, 5, 0, Math.PI * 2);
-      ctx.fill();
+      selected.textContent='✅ '+file.name+' • '+file.size.toLocaleString('id-ID')+' byte';
+      if(typeof toast==='function') toast('File JS berhasil di-upload.');
+    }catch(e){
+      selected.textContent='❌ Gagal membaca file';
+      if(typeof toast==='function') toast('Gagal membaca file JS.');
     }
   }
 
-  prevFrame = curr;
+  btn.addEventListener('click',()=>input.click());
+  input.addEventListener('change',()=>loadFile(input.files[0]));
 
-  // Update status
-  if (hasObject) {
-    lostCounter = 0;
-    stopAlarm();
-    stopFlash();
-    statusEl.className = 'detected';
-    statusEl.textContent = '✔ OBJEK TERDETEKSI DI DEPAN KAMERA';
-  } else {
-    lostCounter++;
-    if (lostCounter >= CONFIG.lostFramesThreshold) {
-      statusEl.className = 'not-detected';
-      statusEl.textContent = '⚠ TIDAK ADA OBJEK DI DEPAN KAMERA!';
-      startAlarm();
-      startFlash();
-    } else {
-      statusEl.className = 'not-detected';
-      statusEl.textContent = `Menunggu objek... (${lostCounter}/${CONFIG.lostFramesThreshold})`;
-    }
-  }
-
-  motionLoop = requestAnimationFrame(detectLoop);
-}
-
-// ============================================
-// KONTROL
-// ============================================
-document.getElementById('btn-start').addEventListener('click', async () => {
-  if (isRunning) return;
-  initAudio();
-  const ok = await startCamera();
-  if (!ok) return;
-  isRunning = true;
-  lostCounter = 0;
-  prevFrame = null;
-  statusEl.className = 'detected';
-  statusEl.textContent = 'MENDETEKSI...';
-  detectLoop();
-});
-
-document.getElementById('btn-stop').addEventListener('click', () => {
-  isRunning = false;
-  if (motionLoop) cancelAnimationFrame(motionLoop);
-  stopAlarm();
-  stopFlash();
-  if (video.srcObject) {
-    video.srcObject.getTracks().forEach(t => t.stop());
-    video.srcObject = null;
-  }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  prevFrame = null;
-  statusEl.textContent = 'DIHENTIKAN';
-  statusEl.className = 'not-detected';
-});
-
-// Cegah layar mati saat deteksi
-let wakeLock = null;
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch(e) {}
-}
-document.getElementById('btn-start').addEventListener('click', requestWakeLock);
+  ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,e=>{
+    e.preventDefault(); zone.classList.add('drag');
+  }));
+  ['dragleave','drop'].forEach(ev=>zone.addEventListener(ev,e=>{
+    e.preventDefault(); zone.classList.remove('drag');
+  }));
+  zone.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+})();
 </script>
-</body>
-</html>
+</body></html>
