@@ -80,10 +80,20 @@ $('enc').onclick=()=>{
  if($('mini').value==='yes')s=mini(s);
  let name=($('project').value||'Putzzdev').replace(/[^a-zA-Z0-9_$]/g,'_'),key=name+'::ENC',result;
  let cover=$('cover').value.trim()||'プログラム Putzzdev コード保護';
- let banner='/* '+cover+' */\n/* '+name+' | 日本語 + Putzzdev */\n';
+ let banner='/* '+cover+' */\n/* '+name+' | 日本語 + '+name+' */\n';
+ const jp=['高宝座','座Ikyy','プログラム','コード','保護','日本語','高宝座'];
+ const rand=()=>Math.random().toString(36).slice(2,9);
+ const id=()=>name+jp[Math.floor(Math.random()*jp.length)]+rand();
  if($('level').value==='light')result=banner+s;
- else {let d=b64(xor(s,key));result=banner+'(()=>{const PutzzdevKey='+JSON.stringify(key)+',PutzzdevData='+JSON.stringify(d)+',b=atob(PutzzdevData);let 日本語="";for(let PutzzdevIndex=0;PutzzdevIndex<b.length;PutzzdevIndex++)日本語+=String.fromCharCode(b.charCodeAt(PutzzdevIndex)^PutzzdevKey.charCodeAt(PutzzdevIndex%PutzzdevKey.length));(0,eval)(日本語)})();\n/* '+cover+' Putzzdev */';}
- if($('format').value==='packed'){let d=b64(s);result=banner+'(()=>{const PutzzdevData='+JSON.stringify(d)+',日本語=atob(PutzzdevData);(0,eval)(日本語)})();\n/* '+cover+' Putzzdev */'}
+ else {
+   let d=b64(xor(s,key));
+   let K=id(),D=id(),B=id(),X=id(),I=id();
+   result=banner+'(()=>{const '+K+'='+JSON.stringify(key)+','+D+'='+JSON.stringify(d)+','+B+'=atob('+D+');let '+X+'="";for(let '+I+'=0;'+I+'<'+B+'.length;'+I+'++)'+X+'+=String.fromCharCode('+B+'.charCodeAt('+I+')^'+K+'.charCodeAt('+I+'%'+K+'.length));(0,eval)('+X+')})();\n/* '+cover+' '+name+' */';
+ }
+ if($('format').value==='packed'){
+   let d=b64(s),D=id(),X=id();
+   result=banner+'(()=>{const '+D+'='+JSON.stringify(d)+','+X+'=atob('+D+');(0,eval)('+X+')})();\n/* '+cover+' '+name+' */';
+ }
  out.value=result;$('copy').disabled=false;$('download').disabled=false;stats();toast('Encode berhasil');
 };
 $('copy').onclick=async()=>{await navigator.clipboard.writeText(out.value);toast('Berhasil dicopy')};
