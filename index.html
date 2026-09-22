@@ -8,19 +8,7 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#24165a55,transparent 32%),#070a10;color:var(--text);font-family:system-ui,Arial,sans-serif}
 header{max-width:1180px;margin:auto;height:70px;padding:0 20px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:21px;font-weight:900}.brand b{color:var(--a)}.brand small{font-size:10px;color:var(--muted);margin-left:7px}
 .hero{max-width:1180px;margin:35px auto 25px;padding:0 20px;text-align:center}.badge{color:#b9adff;border:1px solid #7c5cff55;padding:7px 11px;border-radius:99px;font-size:11px;font-weight:800}.hero h1{font-size:clamp(38px,7vw,68px);line-height:1;margin:17px 0 12px;letter-spacing:-3px}.hero h1 em{color:var(--a);font-style:normal}.hero p{color:var(--muted)}
-.app{max-width:1180px;margin:auto;padding:0 20px 45px}.top{margin-bottom:12px}.name{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:0}.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.head{height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}.head span{color:var(--muted)}textarea{width:100%;height:450px;resize:none;border:0;outline:0;background:#080d14;color:#d9e2f2;padding:17px;font:13px/1.65 monospace}.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.setting{background:var(--card);border:1px solid var(--line);padding:12px;border-radius:13px}.setting label{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.setting select{width:100%;background:#090f18;color:var(--text);border:1px solid var(--line);padding:9px;border-radius:9px}.actions{display:flex;gap:10px}.btn{flex:1;border:1px solid var(--line);background:#121b29;color:var(--text);padding:12px;border-radius:11px;font-weight:800;cursor:pointer}.primary{border:0;background:linear-gradient(135deg,var(--a),#5d38db);color:white}.green{border:0;background:linear-gradient(135deg,var(--g),#00a77e);color:#00150f}.btn:disabled{opacity:.4}.stats{display:flex;gap:14px;color:var(--muted);font-size:11px;margin:11px 2px}.stats b{color:var(--text)}.note{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.5}.toast{position:fixed;right:18px;bottom:18px;background:#121b29;border:1px solid #2b3950;padding:12px 15px;border-radius:12px;opacity:0;transition:.2s}.toast.show{opacity:1}footer{text-align:center;color:var(--muted);font-size:11px;padding-bottom:25px}@media(max-width:800px){.layout{grid-template-columns:1fr}.settings{grid-template-columns:1fr}textarea{height:340px}.hero h1{letter-spacing:-2px}}
-</style>
-
-<style>
-.file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
-.file-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06)}
-.file-btn:hover{background:rgba(255,255,255,.1)}
-#fileName{font-size:12px;opacity:.7}
-</style>
-
-
-
-<style>
+.app{max-width:1180px;margin:auto;padding:0 20px 45px}.top{margin-bottom:12px}.name{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:0;margin-bottom:10px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.head{height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}.head span{color:var(--muted)}textarea{width:100%;height:450px;resize:none;border:0;outline:0;background:#080d14;color:#d9e2f2;padding:17px;font:13px/1.65 monospace}.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.setting{background:var(--card);border:1px solid var(--line);padding:12px;border-radius:13px}.setting label{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.setting select{width:100%;background:#090f18;color:var(--text);border:1px solid var(--line);padding:9px;border-radius:9px}.actions{display:flex;gap:10px}.btn{flex:1;border:1px solid var(--line);background:#121b29;color:var(--text);padding:12px;border-radius:11px;font-weight:800;cursor:pointer}.primary{border:0;background:linear-gradient(135deg,var(--a),#5d38db);color:white}.green{border:0;background:linear-gradient(135deg,var(--g),#00a77e);color:#00150f}.btn:disabled{opacity:.4}.stats{display:flex;gap:14px;color:var(--muted);font-size:11px;margin:11px 2px}.stats b{color:var(--text)}.note{padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.5}.toast{position:fixed;right:18px;bottom:18px;background:#121b29;border:1px solid #2b3950;padding:12px 15px;border-radius:12px;opacity:0;transition:.2s;z-index:99}.toast.show{opacity:1}footer{text-align:center;color:var(--muted);font-size:11px;padding:25px 0}
 .upload-card{margin:16px 0;padding:22px;border:1px solid rgba(0,255,170,.25);border-radius:20px;background:linear-gradient(180deg,rgba(0,255,170,.07),rgba(0,140,255,.04));text-align:center}
 .upload-icon{font-size:38px;margin-bottom:4px}
 .upload-card h3{margin:4px 0 6px;font-size:18px}
@@ -30,28 +18,27 @@ header{max-width:1180px;margin:auto;height:70px;padding:0 20px;display:flex;alig
 .drop-zone{padding:16px;border:1px dashed rgba(255,255,255,.22);border-radius:13px;font-size:12px;opacity:.8}
 .drop-zone.drag{border-color:#00e5a0;background:rgba(0,229,160,.08)}
 .selected-file{margin-top:12px;font-size:12px;word-break:break-word;opacity:.8}
-</style>
-
-<style>
-.enc-file-first{margin:18px 0;padding:20px;border:1px solid rgba(0,255,170,.28);border-radius:18px;background:rgba(0,255,170,.045);text-align:center}
-.enc-file-title{font-size:20px;font-weight:900}.enc-file-sub{font-size:12px;opacity:.7;margin:7px 0 15px}
-.enc-pick,.enc-run,.enc-result-actions button{border:0;border-radius:12px;padding:13px 16px;font-weight:800;cursor:pointer}
-.enc-pick{width:100%;background:linear-gradient(135deg,#00e5a0,#00b8ff);color:#06110e}
-.enc-run{width:100%;margin-top:10px;background:#111b22;color:#fff;border:1px solid rgba(255,255,255,.12)}
-.enc-run:disabled{opacity:.4;cursor:not-allowed}.enc-file-info{font-size:12px;margin-top:10px;word-break:break-word;opacity:.75}
-.enc-result{margin:18px 0;padding:16px;border:1px solid rgba(0,255,170,.22);border-radius:18px;background:rgba(255,255,255,.025)}
-.enc-result-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}
-#encResultOutput{width:100%;min-height:260px;box-sizing:border-box;font-family:monospace;font-size:11px;resize:vertical}
-.enc-result-actions{display:flex;gap:8px;margin-top:10px}.enc-result-actions button{flex:1;background:#18232b;color:#fff}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.settings{grid-template-columns:1fr}textarea{height:340px}.hero h1{letter-spacing:-2px}}
 </style>
 </head>
 <body>
 <header><div class="brand">ENC <b>JS</b> <small>PREMIUM</small></div></header>
 <section class="hero"><span class="badge">LOCAL • FAST • PRIVATE</span><h1>JavaScript <em>ENC</em> Tool</h1><p>Obfuscate JavaScript langsung di browser. Tanpa login dan tanpa upload source.</p></section>
 <main class="app">
-<div class="top"><input id="project" class="name" value="Putzzdev" placeholder="Nama project / label"><input id="cover" class="name" value="プログラム Putzzdev コード保護" placeholder="Cover Jepang + Putzzdev"></div>
+<div class="top">
+  <input id="project" class="name" value="Putzzdev" placeholder="Nama project / label">
+  <input id="cover" class="name" value="プログラム Putzzdev コード保護" placeholder="Cover Jepang + Putzzdev">
+</div>
+
 <div class="layout">
-<section class="panel"><div class="head">SOURCE CODE <span id="ss">0 chars</span></div>
+  <section class="panel">
+    <div class="head">SOURCE CODE <span id="ss">0 chars</span></div>
+    <textarea id="src" spellcheck="false" placeholder="// Paste JavaScript kamu di sini"></textarea>
+  </section>
+  <section class="panel">
+    <div class="head">ENCODED OUTPUT <span id="os">0 chars</span></div>
+    <textarea id="out" readonly spellcheck="false" placeholder="// Hasil encode muncul di sini"></textarea>
+  </section>
 </div>
 
 <section class="upload-card" id="uploadCard">
@@ -65,217 +52,342 @@ header{max-width:1180px;margin:auto;height:70px;padding:0 20px;display:flex;alig
   <div class="selected-file" id="selectedFile">Belum ada file</div>
 </section>
 
-<textarea id="src" spellcheck="false" placeholder="// Paste JavaScript kamu di sini"></textarea></section>
-<section class="panel"><div class="head">ENCODED OUTPUT <span id="os">0 chars</span></div><textarea id="out" readonly spellcheck="false" placeholder="// Hasil encode muncul di sini"></textarea></section>
-</div>
 <div class="settings">
-<div class="setting"><label>Protection</label><select id="level"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="strong">Strong</option></select></div>
-<div class="setting"><label>Minify</label><select id="mini"><option value="yes" selected>Enabled</option><option value="no">Disabled</option></select></div>
-<div class="setting"><label>Output</label><select id="format"><option value="self">Self-contained JS</option><option value="packed">Packed loader</option></select></div>
+  <div class="setting"><label>Tipe ENC</label>
+    <select id="level">
+      <option value="biasa">Biasa — Nama Putzzdev</option>
+      <option value="medium" selected>Medium — Campuran</option>
+      <option value="hard">Hard — Full Teks Jepang</option>
+    </select>
+  </div>
+  <div class="setting"><label>Minify</label><select id="mini"><option value="yes" selected>Enabled</option><option value="no">Disabled</option></select></div>
+  <div class="setting"><label>Output</label><select id="format"><option value="self">Self-contained JS</option><option value="packed">Packed loader</option></select></div>
 </div>
-<div class="actions"><button class="btn primary" id="enc">⚡ ENCODE JS</button><button class="btn green" id="copy" disabled>Copy</button><button class="btn" id="download" disabled>Download .js</button></div>
+
+<div class="actions">
+  <button class="btn primary" id="enc">⚡ ENCODE JS</button>
+  <button class="btn green" id="copy" disabled>Copy</button>
+  <button class="btn" id="download" disabled>Download .js</button>
+</div>
+
 <div class="stats">Project: <b id="ps">Putzzdev</b> · Input: <b id="ib">0 B</b> · Output: <b id="ob">0 B</b></div>
 <div class="note"><b>Catatan:</b> Ini obfuscation, bukan enkripsi absolut. JavaScript yang dijalankan client tetap secara teknis dapat dianalisis. Seluruh proses dilakukan lokal di browser.</div>
 </main>
 <footer>ENC JS Premium • Dev: <b>Putzzdev</b></footer>
 <div id="toast" class="toast"></div>
+
 <script>
-const $=id=>document.getElementById(id),src=$('src'),out=$('out');
-function bytes(s){return new Blob([s]).size+' B'} function stats(){$('ss').textContent=src.value.length+' chars';$('os').textContent=out.value.length+' chars';$('ib').textContent=bytes(src.value);$('ob').textContent=bytes(out.value)}
-function toast(x){$('toast').textContent=x;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
-function mini(s){return s.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|[^:])\/\/.*$/gm,'$1').replace(/\s+/g,' ').replace(/\s*([{}();,:=+\-*<>])\s*/g,'$1').trim()}
-function b64(s){let bin='';let a=new TextEncoder().encode(s);for(let i=0;i<a.length;i++)bin+=String.fromCharCode(a[i]);return btoa(bin)}
-function xor(s,k){let r='';for(let i=0;i<s.length;i++)r+=String.fromCharCode(s.charCodeAt(i)^k.charCodeAt(i%k.length));return r}
-$('project').oninput=()=>{$('ps').textContent=$('project').value||'Untitled'};
-src.oninput=stats;
-$('enc').onclick=()=>{
- let s=src.value;if(!s.trim())return toast('Masukkan JavaScript terlebih dahulu.');
- if($('mini').value==='yes')s=mini(s);
- let name=($('project').value||'Putzzdev').replace(/[^a-zA-Z0-9_$]/g,'_'),key=name+'::ENC',result;
- let cover=$('cover').value.trim()||'プログラム Putzzdev コード保護';
- let banner='/* '+cover+' */\n/* '+name+' | 日本語 + '+name+' */\n';
- const jp=['高宝座','座Ikyy','プログラム','コード','保護','日本語','高宝座'];
- const rand=()=>Math.random().toString(36).slice(2,9);
- const id=()=>name+jp[Math.floor(Math.random()*jp.length)]+rand();
- if($('level').value==='light')result=banner+s;
- else {
-   let d=b64(xor(s,key));
-   let K=id(),D=id(),B=id(),X=id(),I=id();
-   result=banner+'(()=>{const '+K+'='+JSON.stringify(key)+','+D+'='+JSON.stringify(d)+','+B+'=atob('+D+');let '+X+'="";for(let '+I+'=0;'+I+'<'+B+'.length;'+I+'++)'+X+'+=String.fromCharCode('+B+'.charCodeAt('+I+')^'+K+'.charCodeAt('+I+'%'+K+'.length));(0,eval)('+X+')})();\n/* '+cover+' '+name+' */';
- }
- if($('format').value==='packed'){
-   let d=b64(s),D=id(),X=id();
-   result=banner+'(()=>{const '+D+'='+JSON.stringify(d)+','+X+'=atob('+D+');(0,eval)('+X+')})();\n/* '+cover+' '+name+' */';
- }
- out.value=result;$('copy').disabled=false;$('download').disabled=false;stats();toast('Encode berhasil');
+/* ============================================================
+   ENC JS PREMIUM — Putzzdev Engine
+   Tipe ENC: biasa (Putzzdev), medium (campuran), hard (full Jepang)
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const src = $('src'), out = $('out');
+
+/* ---------- JAPANESE POOL ---------- */
+const JP_POOL = {
+  kanji: "高宝座斉暗号守護忍者雷龍神鬼侍影炎風水火土空海月日星",
+  katakana: "エンコードプロテクトシャドウドラゴンサムライカミオニレイ",
+  hiragana: "あんごうしゅごにんじゃかみなりりゅうかみおにさむらい"
 };
-$('copy').onclick=async()=>{await navigator.clipboard.writeText(out.value);toast('Berhasil dicopy')};
-$('download').onclick=()=>{let n=($('project').value||'Putzzdev').replace(/[^a-zA-Z0-9_-]/g,'_'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out.value],{type:'application/javascript'}));a.download=n+'-encoded.js';a.click();toast('File dibuat')};
+
+/* ---------- UTIL ---------- */
+function bytes(s){ return new Blob([s]).size + ' B' }
+function stats(){
+  $('ss').textContent = src.value.length + ' chars';
+  $('os').textContent = out.value.length + ' chars';
+  $('ib').textContent = bytes(src.value);
+  $('ob').textContent = bytes(out.value);
+}
+function toast(x){
+  $('toast').textContent = x;
+  $('toast').classList.add('show');
+  setTimeout(()=>$('toast').classList.remove('show'), 1800);
+}
+function hashStr(s){
+  let h = 0;
+  for (let i = 0; i < s.length; i++){ h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
+
+/* ---------- BASE64 (UTF-8 safe) ---------- */
+function b64(s){
+  const a = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < a.length; i += 0x8000)
+    bin += String.fromCharCode(...a.subarray(i, i+0x8000));
+  return btoa(bin);
+}
+function revB64(s){ return b64(s).split('').reverse().join(''); }
+
+/* ---------- HEX ---------- */
+function toHex(s){
+  let o = '';
+  for (let i = 0; i < s.length; i++)
+    o += s.charCodeAt(i).toString(16).padStart(2,'0');
+  return o;
+}
+
+/* ---------- UNICODE ESCAPE ---------- */
+function toUnicode(s){
+  return s.split('').map(c => {
+    const code = c.charCodeAt(0);
+    return code > 127 ? '\\u' + code.toString(16).padStart(4,'0') : c;
+  }).join('');
+}
+
+/* ---------- XOR ---------- */
+function xor(s, k){
+  let r = '';
+  for (let i = 0; i < s.length; i++)
+    r += String.fromCharCode(s.charCodeAt(i) ^ k.charCodeAt(i % k.length));
+  return r;
+}
+
+/* ---------- MINIFY ---------- */
+function mini(s){
+  return s
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{}();,:=+\-*<>])\s*/g, '$1')
+    .trim();
+}
+
+/* ---------- KAMUFLASE JEPANG ---------- */
+function buildJP(seed, style, len){
+  const pool = JP_POOL[style] || JP_POOL.kanji;
+  let h = hashStr(seed);
+  let o = '';
+  for (let i = 0; i < len; i++){
+    h = (h * 9301 + 49297) % 233280;
+    o += pool[h % pool.length];
+  }
+  return o;
+}
+
+/* ---------- SAFE VAR NAME ---------- */
+/* mode: "biasa" -> full Putzzdev, "medium" -> campuran, "hard" -> full Jepang */
+function safeVar(name, jp, idx, mode){
+  const base = (name || 'Putzzdev').replace(/[^a-zA-Z0-9_$]/g, '') || 'Putzzdev';
+  const jpSafe = jp.replace(/[^a-zA-Z0-9_$]/g, '').slice(0, 4) || 'x';
+
+  if (mode === 'hard'){
+    /* full Jepang: pakai karakter Jepang asli sebagai nama variabel */
+    const jpRaw = jp.slice(0, 6) || '高宝座';
+    return jpRaw + idx;
+  }
+  if (mode === 'medium'){
+    /* campuran: nama + sedikit Jepang */
+    return base + jpSafe + idx;
+  }
+  /* biasa: full Putzzdev */
+  return base + idx;
+}
+
+/* ---------- BUILD PAYLOAD ---------- */
+function buildPayload(code, level, name){
+  const style = (window.__jpStyle || 'kanji');
+  const jpName = buildJP(name, style, 8);
+
+  /* header sesuai tipe */
+  let header;
+  if (level === 'hard'){
+    /* full teks Jepang */
+    header = '/* ' + buildJP(name + 'h', style, 40) + ' */\n/* ' + jpName + ' */\n';
+  } else if (level === 'medium'){
+    /* campuran */
+    header = '/* ' + name + ' | ' + jpName + ' | ENC */\n/* ' + buildJP(name + 'm', style, 24) + ' */\n';
+  } else {
+    /* biasa: full Putzzdev */
+    header = '/* ' + name + ' | ENC JS PREMIUM */\n/* ' + name + ' © ' + name + ' */\n';
+  }
+  const payload = header + code;
+
+  /* ---- BIASA: base64 + nama Putzzdev ---- */
+  if (level === 'biasa'){
+    const d = b64(payload);
+    const K = safeVar(name, jpName, 1, 'biasa');
+    return '(()=>{const ' + K + '="' + d + '";(0,eval)(atob(' + K + '))})();';
+  }
+
+  /* ---- MEDIUM: XOR + base64, var campuran ---- */
+  if (level === 'medium'){
+    const key = name + '::ENC::' + jpName;
+    const d = b64(xor(payload, key));
+    const K = safeVar(name, jpName, 1, 'medium');
+    const D = safeVar(name, jpName, 2, 'medium');
+    const B = safeVar(name, jpName, 3, 'medium');
+    const X = safeVar(name, jpName, 4, 'medium');
+    const I = safeVar(name, jpName, 5, 'medium');
+    return '(()=>{const ' + K + '=' + JSON.stringify(key) + ',' + D + '=' + JSON.stringify(d) + ',' + B + '=atob(' + D + ');let ' + X + '="";for(let ' + I + '=0;' + I + '<' + B + '.length;' + I + '++)' + X + '+=String.fromCharCode(' + B + '.charCodeAt(' + I + ')^' + K + '.charCodeAt(' + I + '%' + K + '.length));(0,eval)(' + X + ')})();';
+  }
+
+  /* ---- HARD: full Jepang, multi layer ---- */
+  const key = name + '::HARD::' + jpName;
+  const uni = toUnicode(payload);
+  const hex = toHex(uni);
+  const rev = revB64(hex);
+  const finalStr = b64(rev);
+  const K = safeVar(name, jpName, 1, 'hard');
+  const D = safeVar(name, jpName, 2, 'hard');
+  const R = safeVar(name, jpName, 3, 'hard');
+  const H = safeVar(name, jpName, 4, 'hard');
+  const U = safeVar(name, jpName, 5, 'hard');
+  const F = safeVar(name, jpName, 6, 'hard');
+  const I = safeVar(name, jpName, 7, 'hard');
+
+  return '(()=>{const ' + K + '=' + JSON.stringify(key) + ',' + D + '=' + JSON.stringify(finalStr) + ',' + R + '=atob(' + D + ').split("").reverse().join(""),' + H + '="";for(let ' + I + '=0;' + I + '<' + R + '.length;' + I + '+=2)' + H + '+=String.fromCharCode(parseInt(' + R + '.substr(' + I + ',2),16));let ' + U + '="";for(let ' + I + '=0;' + I + '<' + H + '.length;' + I + '++){if(' + H + '[' + I + ']==="\\\\"&&' + H + '[' + I + '+1]==="u"){' + U + '+=String.fromCharCode(parseInt(' + H + '.substr(' + I + '+2,4),16));' + I + '+=5}else{' + U + '+=' + H + '[' + I + ']}}' + F + '="";for(let ' + I + '=0;' + I + '<' + U + '.length;' + I + '++)' + F + '+=String.fromCharCode(' + U + '.charCodeAt(' + I + ')^' + K + '.charCodeAt(' + I + '%' + K + '.length));(0,eval)(' + F + ')})();';
+}
+
+/* ---------- WRAP OUTPUT ---------- */
+function wrapOutput(decoder, mode, name, cover, level){
+  const style = (window.__jpStyle || 'kanji');
+  const jp = buildJP(name + 'x', style, 60);
+  const jp2 = buildJP(name + 'y', style, 50);
+
+  /* header & footer sesuai tipe */
+  let header, footer;
+  if (level === 'hard'){
+    header = '/*\n * ' + jp + '\n * ' + jp2 + '\n * ' + buildJP(name + 'z', style, 30) + '\n */';
+    footer = '/* ' + jp + ' */';
+  } else if (level === 'medium'){
+    header = '/*\n * ' + name + ' | ' + jp.slice(0, 30) + '\n * ' + jp2.slice(0, 30) + ' | ' + name + '\n */';
+    footer = '/* ' + name + ' | ' + jp2.slice(0, 20) + ' */';
+  } else {
+    header = '/*\n * ' + name + ' — ENC JS PREMIUM\n * ' + name + ' | Protected\n * Dev: ' + name + '\n */';
+    footer = '/* ' + name + ' © ' + name + ' */';
+  }
+
+  if (mode === 'eval')
+    return header + '\neval(function(){return ' + JSON.stringify(decoder) + '}());\n' + footer;
+  if (mode === 'function')
+    return header + '\nfunction ' + safeVar(name, jp, 9, level === 'hard' ? 'hard' : 'biasa') + '(){return ' + JSON.stringify(decoder) + '}\n' + safeVar(name, jp, 9, level === 'hard' ? 'hard' : 'biasa') + '();\n' + footer;
+  if (mode === 'iife')
+    return header + '\n(function(){' + decoder + '})();\n' + footer;
+  return header + '\n' + decoder + '\n' + footer;
+}
+
+/* ---------- PACKED LOADER ---------- */
+function packedLoader(code, name, level){
+  const style = (window.__jpStyle || 'kanji');
+  const jpName = buildJP(name, style, 8);
+  const d = b64(code);
+  const mode = level === 'hard' ? 'hard' : 'biasa';
+  const D = safeVar(name, jpName, 1, mode);
+  const X = safeVar(name, jpName, 2, mode);
+
+  let header;
+  if (level === 'hard'){
+    header = '/* ' + buildJP(name + 'p', style, 40) + ' */\n';
+  } else if (level === 'medium'){
+    header = '/* ' + name + ' | ' + jpName + ' | packed */\n';
+  } else {
+    header = '/* ' + name + ' | packed */\n';
+  }
+
+  return header + '(()=>{const ' + D + '=' + JSON.stringify(d) + ',' + X + '=atob(' + D + ');(0,eval)(' + X + ')})();';
+}
+
+/* ---------- MAIN ENCODE ---------- */
+$('enc').onclick = () => {
+  let s = src.value;
+  if (!s.trim()) return toast('Masukkan JavaScript terlebih dahulu.');
+
+  if ($('mini').value === 'yes') s = mini(s);
+
+  const name = ($('project').value || 'Putzzdev').trim() || 'Putzzdev';
+  const cover = ($('cover').value || '').trim() || 'プログラム ' + name + ' コード保護';
+  const level = $('level').value;
+  const format = $('format').value;
+
+  let result;
+  if (format === 'packed'){
+    result = packedLoader(s, name, level);
+  } else {
+    const decoder = buildPayload(s, level, name);
+    result = wrapOutput(decoder, 'eval', name, cover, level);
+  }
+
+  out.value = result;
+  $('copy').disabled = false;
+  $('download').disabled = false;
+  stats();
+  toast('Encode berhasil — tipe: ' + level);
+};
+
+/* ---------- COPY ---------- */
+$('copy').onclick = async () => {
+  if (!out.value) return toast('Belum ada output');
+  try { await navigator.clipboard.writeText(out.value); toast('Berhasil dicopy'); }
+  catch(e){ out.select(); document.execCommand('copy'); toast('Berhasil dicopy'); }
+};
+
+/* ---------- DOWNLOAD ---------- */
+$('download').onclick = () => {
+  if (!out.value) return toast('Belum ada output');
+  const n = ($('project').value || 'Putzzdev').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([out.value], {type:'application/javascript'}));
+  a.download = n + '-encoded.js';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  toast('File dibuat');
+};
+
+/* ---------- LIVE STATS ---------- */
+src.oninput = stats;
+$('project').oninput = () => { $('ps').textContent = $('project').value || 'Untitled'; };
 stats();
 </script>
 
-
 <script>
+/* ============================================================
+   UPLOAD FILE (drag & drop)
+   ============================================================ */
 (() => {
   const input = document.getElementById('jsFile');
   const btn = document.getElementById('uploadBtn');
   const zone = document.getElementById('dropZone');
   const selected = document.getElementById('selectedFile');
-  const source = document.getElementById('source');
+  const source = document.getElementById('src');
   if (!input || !btn || !zone || !selected) return;
 
   function reject(){
-    input.value='';
-    selected.textContent='❌ File ditolak — hanya JavaScript (.js) yang diperbolehkan';
-    if(typeof toast==='function') toast('Hanya file .js yang boleh di-upload.');
+    input.value = '';
+    selected.textContent = '❌ File ditolak — hanya JavaScript (.js) yang diperbolehkan';
+    if (typeof toast === 'function') toast('Hanya file .js yang boleh di-upload.');
   }
 
   async function loadFile(file){
-    if(!file) return;
-    if(!file.name.toLowerCase().endsWith('.js')) return reject();
-    try{
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.js')) return reject();
+    try {
       const code = await file.text();
-      if(source) {
+      if (source){
         source.value = code;
-        source.dispatchEvent(new Event('input',{bubbles:true}));
+        source.dispatchEvent(new Event('input', {bubbles:true}));
       }
-      selected.textContent='✅ '+file.name+' • '+file.size.toLocaleString('id-ID')+' byte';
-      if(typeof toast==='function') toast('File JS berhasil di-upload.');
-    }catch(e){
-      selected.textContent='❌ Gagal membaca file';
-      if(typeof toast==='function') toast('Gagal membaca file JS.');
+      selected.textContent = '✅ ' + file.name + ' • ' + file.size.toLocaleString('id-ID') + ' byte';
+      if (typeof toast === 'function') toast('File JS berhasil di-upload.');
+    } catch(e){
+      selected.textContent = '❌ Gagal membaca file';
+      if (typeof toast === 'function') toast('Gagal membaca file JS.');
     }
   }
 
-  btn.addEventListener('click',()=>input.click());
-  input.addEventListener('change',()=>loadFile(input.files[0]));
+  btn.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => loadFile(input.files[0]));
 
-  ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,e=>{
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => {
     e.preventDefault(); zone.classList.add('drag');
   }));
-  ['dragleave','drop'].forEach(ev=>zone.addEventListener(ev,e=>{
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => {
     e.preventDefault(); zone.classList.remove('drag');
   }));
-  zone.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+  zone.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
 })();
 </script>
 
-<section class="enc-file-first" id="encFileFirst">
-  <div class="enc-file-title">🔐 FILE → ENC</div>
-  <div class="enc-file-sub">Upload file JavaScript dari HP. Tidak perlu copy-paste kode.</div>
-  <input id="encUploadedFile" type="file" accept=".js" hidden>
-  <button type="button" id="encPickFile" class="enc-pick">📂 UPLOAD FILE JS</button>
-  <div id="encFileInfo" class="enc-file-info">Belum ada file yang dipilih</div>
-  <button type="button" id="encRunFile" class="enc-run" disabled>⚡ ENC FILE SEKARANG</button>
-</section>
-
-<section class="enc-result" id="encResult" hidden>
-  <div class="enc-result-head">
-    <b>HASIL ENC</b>
-    <span id="encResultName"></span>
-  </div>
-  <textarea id="encResultOutput" readonly></textarea>
-  <div class="enc-result-actions">
-    <button type="button" id="encCopyResult">📋 COPY</button>
-    <button type="button" id="encDownloadResult">📥 DOWNLOAD .JS</button>
-  </div>
-</section>
-
-<script>
-(() => {
-  const fileInput = document.getElementById('encUploadedFile');
-  const pick = document.getElementById('encPickFile');
-  const run = document.getElementById('encRunFile');
-  const info = document.getElementById('encFileInfo');
-  const resultBox = document.getElementById('encResult');
-  const output = document.getElementById('encResultOutput');
-  const resultName = document.getElementById('encResultName');
-  const copyBtn = document.getElementById('encCopyResult');
-  const downloadBtn = document.getElementById('encDownloadResult');
-  if (!fileInput || !pick || !run || !output) return;
-
-  let selectedFile = null;
-
-  pick.addEventListener('click', () => fileInput.click());
-
-  fileInput.addEventListener('change', () => {
-    const f = fileInput.files && fileInput.files[0];
-    if (!f) return;
-    if (!f.name.toLowerCase().endsWith('.js')) {
-      selectedFile = null;
-      run.disabled = true;
-      info.textContent = '❌ Ditolak — hanya file .js';
-      fileInput.value = '';
-      return;
-    }
-    selectedFile = f;
-    info.textContent = '✅ ' + f.name + ' • ' + f.size.toLocaleString('id-ID') + ' byte';
-    run.disabled = false;
-  });
-
-  function b64(s) {
-    const bytes = new TextEncoder().encode(s);
-    let bin = '';
-    for (let i=0;i<bytes.length;i+=0x8000) bin += String.fromCharCode(...bytes.subarray(i,i+0x8000));
-    return btoa(bin);
-  }
-
-  function makeObfuscated(code, name) {
-    const prefix = (name || 'Putzzdev').replace(/[^a-zA-Z0-9_$]/g,'') || 'Putzzdev';
-    const jp = ['高宝座','齐高宝座','日本語','コード','座'];
-    const vars = Array.from({length:8},(_,i)=>prefix + jp[i%jp.length] + Math.random().toString(36).slice(2,8));
-    const data = b64(code);
-    const k = b64(prefix + '高宝座').slice(0,12);
-    return `/* ${prefix} • ${jp[2]} • protected */\\n(()=>{const ${vars[0]}="${k}",${vars[1]}="${data}";let ${vars[2]}="";const ${vars[3]}=atob(${vars[1]});for(let ${vars[4]}=0;${vars[4]}<${vars[3]}.length;${vars[4]}++)${vars[2]}+=String.fromCharCode(${vars[3]}.charCodeAt(${vars[4]}));(0,eval)(${vars[2]})})();`;
-  }
-
-  run.addEventListener('click', async () => {
-    if (!selectedFile) return;
-    run.disabled = true;
-    run.textContent = '⏳ ENC...';
-    try {
-      const code = await selectedFile.text();
-      const projectName =
-        (document.getElementById('project')?.value ||
-         document.getElementById('name')?.value ||
-         'Putzzdev').trim() || 'Putzzdev';
-
-      // Prefer the site's existing encoder when available.
-      let encoded = null;
-      if (typeof encodeJS === 'function') {
-        try { encoded = encodeJS(code, projectName); } catch(e) {}
-      }
-      if (!encoded && typeof encodeCode === 'function') {
-        try { encoded = encodeCode(code, projectName); } catch(e) {}
-      }
-      if (!encoded) encoded = makeObfuscated(code, projectName);
-
-      output.value = encoded;
-      resultName.textContent = selectedFile.name.replace(/\.js$/i,'') + '-encoded.js';
-      resultBox.hidden = false;
-      resultBox.scrollIntoView({behavior:'smooth', block:'start'});
-      if (typeof toast === 'function') toast('ENC selesai — hasil tampil di bawah.');
-    } catch(e) {
-      info.textContent = '❌ Gagal memproses file JS';
-    } finally {
-      run.disabled = false;
-      run.textContent = '⚡ ENC FILE SEKARANG';
-    }
-  });
-
-  copyBtn?.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(output.value); if(typeof toast==='function') toast('Hasil ENC disalin.'); }
-    catch(e) { output.select(); document.execCommand('copy'); }
-  });
-
-  downloadBtn?.addEventListener('click', () => {
-    const blob = new Blob([output.value], {type:'application/javascript'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (resultName.textContent || 'Putzzdev-encoded.js');
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  });
-})();
-</script>
-</body></html>
+</body>
+</html>
