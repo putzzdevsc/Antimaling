@@ -31,6 +31,19 @@ header{max-width:1180px;margin:auto;height:70px;padding:0 20px;display:flex;alig
 .drop-zone.drag{border-color:#00e5a0;background:rgba(0,229,160,.08)}
 .selected-file{margin-top:12px;font-size:12px;word-break:break-word;opacity:.8}
 </style>
+
+<style>
+.enc-file-first{margin:18px 0;padding:20px;border:1px solid rgba(0,255,170,.28);border-radius:18px;background:rgba(0,255,170,.045);text-align:center}
+.enc-file-title{font-size:20px;font-weight:900}.enc-file-sub{font-size:12px;opacity:.7;margin:7px 0 15px}
+.enc-pick,.enc-run,.enc-result-actions button{border:0;border-radius:12px;padding:13px 16px;font-weight:800;cursor:pointer}
+.enc-pick{width:100%;background:linear-gradient(135deg,#00e5a0,#00b8ff);color:#06110e}
+.enc-run{width:100%;margin-top:10px;background:#111b22;color:#fff;border:1px solid rgba(255,255,255,.12)}
+.enc-run:disabled{opacity:.4;cursor:not-allowed}.enc-file-info{font-size:12px;margin-top:10px;word-break:break-word;opacity:.75}
+.enc-result{margin:18px 0;padding:16px;border:1px solid rgba(0,255,170,.22);border-radius:18px;background:rgba(255,255,255,.025)}
+.enc-result-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}
+#encResultOutput{width:100%;min-height:260px;box-sizing:border-box;font-family:monospace;font-size:11px;resize:vertical}
+.enc-result-actions{display:flex;gap:8px;margin-top:10px}.enc-result-actions button{flex:1;background:#18232b;color:#fff}
+</style>
 </head>
 <body>
 <header><div class="brand">ENC <b>JS</b> <small>PREMIUM</small></div></header>
@@ -144,6 +157,125 @@ stats();
     e.preventDefault(); zone.classList.remove('drag');
   }));
   zone.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+})();
+</script>
+
+<section class="enc-file-first" id="encFileFirst">
+  <div class="enc-file-title">🔐 FILE → ENC</div>
+  <div class="enc-file-sub">Upload file JavaScript dari HP. Tidak perlu copy-paste kode.</div>
+  <input id="encUploadedFile" type="file" accept=".js" hidden>
+  <button type="button" id="encPickFile" class="enc-pick">📂 UPLOAD FILE JS</button>
+  <div id="encFileInfo" class="enc-file-info">Belum ada file yang dipilih</div>
+  <button type="button" id="encRunFile" class="enc-run" disabled>⚡ ENC FILE SEKARANG</button>
+</section>
+
+<section class="enc-result" id="encResult" hidden>
+  <div class="enc-result-head">
+    <b>HASIL ENC</b>
+    <span id="encResultName"></span>
+  </div>
+  <textarea id="encResultOutput" readonly></textarea>
+  <div class="enc-result-actions">
+    <button type="button" id="encCopyResult">📋 COPY</button>
+    <button type="button" id="encDownloadResult">📥 DOWNLOAD .JS</button>
+  </div>
+</section>
+
+<script>
+(() => {
+  const fileInput = document.getElementById('encUploadedFile');
+  const pick = document.getElementById('encPickFile');
+  const run = document.getElementById('encRunFile');
+  const info = document.getElementById('encFileInfo');
+  const resultBox = document.getElementById('encResult');
+  const output = document.getElementById('encResultOutput');
+  const resultName = document.getElementById('encResultName');
+  const copyBtn = document.getElementById('encCopyResult');
+  const downloadBtn = document.getElementById('encDownloadResult');
+  if (!fileInput || !pick || !run || !output) return;
+
+  let selectedFile = null;
+
+  pick.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+    if (!f.name.toLowerCase().endsWith('.js')) {
+      selectedFile = null;
+      run.disabled = true;
+      info.textContent = '❌ Ditolak — hanya file .js';
+      fileInput.value = '';
+      return;
+    }
+    selectedFile = f;
+    info.textContent = '✅ ' + f.name + ' • ' + f.size.toLocaleString('id-ID') + ' byte';
+    run.disabled = false;
+  });
+
+  function b64(s) {
+    const bytes = new TextEncoder().encode(s);
+    let bin = '';
+    for (let i=0;i<bytes.length;i+=0x8000) bin += String.fromCharCode(...bytes.subarray(i,i+0x8000));
+    return btoa(bin);
+  }
+
+  function makeObfuscated(code, name) {
+    const prefix = (name || 'Putzzdev').replace(/[^a-zA-Z0-9_$]/g,'') || 'Putzzdev';
+    const jp = ['高宝座','齐高宝座','日本語','コード','座'];
+    const vars = Array.from({length:8},(_,i)=>prefix + jp[i%jp.length] + Math.random().toString(36).slice(2,8));
+    const data = b64(code);
+    const k = b64(prefix + '高宝座').slice(0,12);
+    return `/* ${prefix} • ${jp[2]} • protected */\\n(()=>{const ${vars[0]}="${k}",${vars[1]}="${data}";let ${vars[2]}="";const ${vars[3]}=atob(${vars[1]});for(let ${vars[4]}=0;${vars[4]}<${vars[3]}.length;${vars[4]}++)${vars[2]}+=String.fromCharCode(${vars[3]}.charCodeAt(${vars[4]}));(0,eval)(${vars[2]})})();`;
+  }
+
+  run.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    run.disabled = true;
+    run.textContent = '⏳ ENC...';
+    try {
+      const code = await selectedFile.text();
+      const projectName =
+        (document.getElementById('project')?.value ||
+         document.getElementById('name')?.value ||
+         'Putzzdev').trim() || 'Putzzdev';
+
+      // Prefer the site's existing encoder when available.
+      let encoded = null;
+      if (typeof encodeJS === 'function') {
+        try { encoded = encodeJS(code, projectName); } catch(e) {}
+      }
+      if (!encoded && typeof encodeCode === 'function') {
+        try { encoded = encodeCode(code, projectName); } catch(e) {}
+      }
+      if (!encoded) encoded = makeObfuscated(code, projectName);
+
+      output.value = encoded;
+      resultName.textContent = selectedFile.name.replace(/\.js$/i,'') + '-encoded.js';
+      resultBox.hidden = false;
+      resultBox.scrollIntoView({behavior:'smooth', block:'start'});
+      if (typeof toast === 'function') toast('ENC selesai — hasil tampil di bawah.');
+    } catch(e) {
+      info.textContent = '❌ Gagal memproses file JS';
+    } finally {
+      run.disabled = false;
+      run.textContent = '⚡ ENC FILE SEKARANG';
+    }
+  });
+
+  copyBtn?.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(output.value); if(typeof toast==='function') toast('Hasil ENC disalin.'); }
+    catch(e) { output.select(); document.execCommand('copy'); }
+  });
+
+  downloadBtn?.addEventListener('click', () => {
+    const blob = new Blob([output.value], {type:'application/javascript'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (resultName.textContent || 'Putzzdev-encoded.js');
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
 })();
 </script>
 </body></html>
